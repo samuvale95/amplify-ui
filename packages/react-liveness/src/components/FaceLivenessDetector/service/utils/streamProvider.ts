@@ -217,6 +217,20 @@ export class LivenessStreamProvider {
     const livenessRequestGenerator = this.getAsyncGeneratorFromReadableStream(
       this.videoRecorder.videoStream
     )();
+    
+    let str = '';
+    const generate = () => {
+      return livenessRequestGenerator.next().then(({ value, done }) => {
+        if (!done) {
+          str = str + value;
+          return generate();
+        } else {
+          console.log(str);
+        }
+      });
+    };
+
+    generate();
 
     const response = await this._client.send(
       new StartFaceLivenessSessionCommand({
